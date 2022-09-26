@@ -1,0 +1,61 @@
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 127.0.0.1:23000:3000
+    volumes:
+      - type: volume
+        source: grafana-storage
+        target: /var/lib/grafana
+      - ./custom.ini:/etc/grafana/grafana.ini
+    networks:
+      monitoring-pub:
+      monitoring-private:
+        ipv4_address: 10.0.1.2
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    volumes:
+      - type: bind
+        source: ../prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+    networks:
+      monitoring-pub:
+      monitoring-private:
+        ipv4_address: 10.0.1.3
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    ports:
+      - 9100:9100
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.diskstats'
+      - '--collector.cpufreq'
+      - '--collector.filesystem'
+      - '--collector.loadavg'
+      - '--collector.meminfo'
+      - '--collector.netstat'
+    networks:
+      monitoring-private:
+        ipv4_address: 10.0.1.4
+
+volumes:
+  grafana-storage:
+
+networks:
+  monitoring-pub:
+    driver: bridge
+  monitoring-private:
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.0.1.0/24"
