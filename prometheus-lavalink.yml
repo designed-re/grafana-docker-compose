@@ -10,7 +10,10 @@ global:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'Linode Itsuki - Tokyo'
+  - job_name: 'Lavalink Korea#1'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
     scrape_interval: 30s
+
     static_configs:
-      - targets: ['10.0.2.2:9100']
+      - targets: ['lavalink-kr1:6974']
